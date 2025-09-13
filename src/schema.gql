@@ -1,0 +1,79 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthResponse {
+  access_token: String!
+  user: User!
+}
+
+type Company {
+  createdAt: DateTime!
+  id: ID!
+  isActive: Boolean!
+  maxMembers: Float!
+  members: [User!]!
+  name: String!
+  owner: User
+  updatedAt: DateTime!
+}
+
+input CreateCompanyInput {
+  maxMembers: Int
+  name: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createCompany(input: CreateCompanyInput!): Company!
+  login(input: LoginInput!): AuthResponse!
+  register(input: RegisterInput!): AuthResponse!
+}
+
+type Query {
+  companies: [Company!]!
+  company(id: ID!): Company!
+  me: User!
+  meWithCompanies: UserWithCompanies!
+  memberships: [Company!]!
+  myCompanies: [Company!]!
+  ownedCompanies: [Company!]!
+}
+
+input RegisterInput {
+  email: String!
+  name: String!
+  password: String!
+}
+
+type User {
+  companies: [String!]
+  createdAt: DateTime!
+  email: String!
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  role: String!
+  updatedAt: DateTime!
+}
+
+type UserWithCompanies {
+  companies: [String!]
+  companiesDetails: [Company!]
+  createdAt: DateTime!
+  email: String!
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  role: String!
+  updatedAt: DateTime!
+}

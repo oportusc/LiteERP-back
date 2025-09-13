@@ -9,6 +9,10 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './companies/companies.module';
+import { ProductsModule } from './products/products.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
+import { CustomersModule } from './customers/customers.module';
+import { SalesModule } from './sales/sales.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -42,6 +46,10 @@ import configuration from './config/configuration';
     AuthModule,
     UsersModule,
     CompaniesModule,
+    ProductsModule,
+    SuppliersModule,
+    CustomersModule,
+    SalesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

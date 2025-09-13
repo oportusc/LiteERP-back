@@ -23,6 +23,67 @@ input CreateCompanyInput {
   name: String!
 }
 
+input CreateCustomerInput {
+  address: String
+  contactPerson: String
+  email: String
+  name: String!
+  notes: String
+  phone: String
+}
+
+input CreateProductInput {
+  currentStock: Float
+  description: String
+  esMix: Boolean
+  name: String!
+  purchasePrice: Float
+  purchaseQuantity: Float
+  purchaseUnit: String
+  receta: [ProductRecipeInput!]
+  salePrice: Float
+  saleQuantity: Float
+  saleUnit: String
+  supplierId: String
+}
+
+input CreateSaleInput {
+  customerId: ID!
+  isPaid: Boolean
+  items: [SaleItemInput!]!
+  notes: String
+  paidAmount: Float
+  paymentDate: DateTime
+  paymentStatus: String
+  saleDate: DateTime!
+  subtotal: Float!
+  tax: Float
+  total: Float!
+}
+
+input CreateSupplierInput {
+  address: String
+  contactPerson: String
+  email: String
+  name: String!
+  notes: String
+  phone: String
+}
+
+type Customer {
+  address: String
+  companyId: String!
+  contactPerson: String
+  createdAt: DateTime!
+  email: String
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  notes: String
+  phone: String
+  updatedAt: DateTime!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -34,25 +95,133 @@ input LoginInput {
 }
 
 type Mutation {
+  addPayment(amount: Float!, saleId: ID!): Sale!
+  cancelSale(id: ID!): Sale!
   createCompany(input: CreateCompanyInput!): Company!
+  createCustomer(input: CreateCustomerInput!): Customer!
+  createProduct(input: CreateProductInput!): Product!
+  createSale(input: CreateSaleInput!): Sale!
+  createSupplier(input: CreateSupplierInput!): Supplier!
   login(input: LoginInput!): AuthResponse!
   register(input: RegisterInput!): AuthResponse!
+}
+
+type Product {
+  availableStock: Float
+  calculatedCost: Float
+  companyId: String!
+  costPerSaleUnit: Float
+  costPerUnit: Float
+  createdAt: DateTime!
+  currentStock: Float!
+  description: String
+  esMix: Boolean!
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  profitMargin: Float
+  profitPercentage: Float
+  purchasePrice: Float
+  purchaseQuantity: Float
+  purchaseUnit: String
+  receta: [ProductRecipe!]
+  salePrice: Float
+  saleQuantity: Float
+  saleUnit: String
+  supplierId: String
+  unitOfMeasure: String!
+  updatedAt: DateTime!
+}
+
+type ProductRecipe {
+  cantidad: Float!
+  product: Product
+  productId: ID!
+  unidad: String!
+}
+
+input ProductRecipeInput {
+  cantidad: Float!
+  productId: String!
+  unidad: String!
 }
 
 type Query {
   companies: [Company!]!
   company(id: ID!): Company!
+  customer(id: ID!): Customer!
+  customers: [Customer!]!
+  materiasPrimas: [Product!]!
   me: User!
   meWithCompanies: UserWithCompanies!
   memberships: [Company!]!
+  mixes: [Product!]!
   myCompanies: [Company!]!
   ownedCompanies: [Company!]!
+  pendingPayments: [Sale!]!
+  product(id: ID!): Product!
+  products: [Product!]!
+  sale(id: ID!): Sale!
+  sales: [Sale!]!
+  salesByCustomer(customerId: ID!): [Sale!]!
+  supplier(id: ID!): Supplier!
+  suppliers: [Supplier!]!
 }
 
 input RegisterInput {
   email: String!
   name: String!
   password: String!
+}
+
+type Sale {
+  companyId: String!
+  createdAt: DateTime!
+  customer: Customer
+  customerId: ID!
+  id: ID!
+  isActive: Boolean!
+  isPaid: Boolean!
+  items: [SaleItem!]!
+  notes: String
+  paidAmount: Float!
+  paymentDate: DateTime
+  paymentStatus: String!
+  pendingAmount: Float
+  saleDate: DateTime!
+  subtotal: Float!
+  tax: Float!
+  total: Float!
+  updatedAt: DateTime!
+}
+
+type SaleItem {
+  product: Product
+  productId: ID!
+  quantity: Float!
+  total: Float!
+  unitPrice: Float!
+}
+
+input SaleItemInput {
+  productId: ID!
+  quantity: Float!
+  total: Float!
+  unitPrice: Float!
+}
+
+type Supplier {
+  address: String
+  companyId: String!
+  contactPerson: String
+  createdAt: DateTime!
+  email: String
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  notes: String
+  phone: String
+  updatedAt: DateTime!
 }
 
 type User {

@@ -5,6 +5,7 @@ import { Product } from './entities/product.entity';
 import { CreateProductInput } from './inputs/create-product.input';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CompanyId } from '../common/decorators/company-id.decorator';
 
 @Resolver(() => Product)
 @UseGuards(JwtAuthGuard)
@@ -14,31 +15,31 @@ export class ProductsResolver {
   @Mutation(() => Product)
   createProduct(
     @Args('input') createProductInput: CreateProductInput,
-    @CurrentUser() user: any
+    @CompanyId() companyId: string
   ) {
-    return this.productsService.createGraphQL(createProductInput, user.companyId);
+    return this.productsService.createGraphQL(createProductInput, companyId);
   }
 
   @Query(() => [Product], { name: 'products' })
-  findAll(@CurrentUser() user: any) {
-    return this.productsService.findAllGraphQL(user.companyId);
+  findAll(@CompanyId() companyId: string) {
+    return this.productsService.findAllGraphQL(companyId);
   }
 
   @Query(() => [Product], { name: 'materiasPrimas' })
-  findMateriasPrimas(@CurrentUser() user: any) {
-    return this.productsService.findMateriasPrimas(user.companyId);
+  findMateriasPrimas(@CompanyId() companyId: string) {
+    return this.productsService.findMateriasPrimas(companyId);
   }
 
   @Query(() => [Product], { name: 'mixes' })
-  findMixes(@CurrentUser() user: any) {
-    return this.productsService.findMixes(user.companyId);
+  findMixes(@CompanyId() companyId: string) {
+    return this.productsService.findMixes(companyId);
   }
 
   @Query(() => Product, { name: 'product' })
   findOne(
     @Args('id', { type: () => ID }) id: string,
-    @CurrentUser() user: any
+    @CompanyId() companyId: string
   ) {
-    return this.productsService.findOneGraphQL(id, user.companyId);
+    return this.productsService.findOneGraphQL(id, companyId);
   }
 }

@@ -22,6 +22,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException();
     }
-    return { userId: payload.sub, email: payload.email, role: payload.role };
+    
+    // Usar la primera empresa como companyId por defecto
+    const companyId = user.companies && user.companies.length > 0 ? user.companies[0].toString() : null;
+    
+    
+    return { 
+      userId: payload.sub, 
+      email: payload.email, 
+      role: payload.role,
+      companyId
+    };
   }
 }

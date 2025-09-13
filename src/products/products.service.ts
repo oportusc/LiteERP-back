@@ -67,19 +67,23 @@ export class ProductsService {
   }
 
   async findAll(companyId: string): Promise<Product[]> {
+    // Convertir companyId a ObjectId para la consulta
+    const companyObjectId = new Types.ObjectId(companyId);
+    
     const products = await this.productModel
-      .find({ companyId, isActive: true })
+      .find({ companyId: companyObjectId, isActive: true })
       .populate('supplierId', 'name')
       .exec();
 
     // Calcular costos y stock para productos mix
-    return Promise.all(products.map(async (product) => {
+    const result = await Promise.all(products.map(async (product) => {
       if (product.esMix) {
         const calculatedCost = await this.calculateMixCost(product);
         const availableStock = await this.calculateMixStock(product);
         const profitabilityData = this.calculateProfitability(product);
         return {
           ...product.toObject(),
+          id: (product._id as Types.ObjectId).toString(), // Mapear _id a id para GraphQL
           calculatedCost,
           availableStock,
           ...profitabilityData
@@ -88,15 +92,20 @@ export class ProductsService {
       const profitabilityData = this.calculateProfitability(product);
       return {
         ...product.toObject(),
+        id: (product._id as Types.ObjectId).toString(), // Mapear _id a id para GraphQL
         availableStock: product.currentStock,
         ...profitabilityData
       } as any;
     }));
+    
+    return result;
   }
 
   async findOne(id: string, companyId: string): Promise<Product> {
+    const companyObjectId = new Types.ObjectId(companyId);
+    
     const product = await this.productModel
-      .findOne({ _id: id, companyId, isActive: true })
+      .findOne({ _id: id, companyId: companyObjectId, isActive: true })
       .populate('supplierId', 'name')
       .populate('receta.productId', 'name unitOfMeasure')
       .exec();
@@ -113,6 +122,7 @@ export class ProductsService {
       const availableStock = await this.calculateMixStock(product);
       return {
         ...product.toObject(),
+        id: (product._id as Types.ObjectId).toString(), // Mapear _id a id para GraphQL
         calculatedCost,
         availableStock,
         ...profitabilityData
@@ -121,15 +131,18 @@ export class ProductsService {
 
     return {
       ...product.toObject(),
+      id: (product._id as Types.ObjectId).toString(), // Mapear _id a id para GraphQL
       availableStock: product.currentStock,
       ...profitabilityData
     } as any;
   }
 
   async findMateriasPrimas(companyId: string): Promise<Product[]> {
+    const companyObjectId = new Types.ObjectId(companyId);
+    
     return this.productModel
       .find({ 
-        companyId, 
+        companyId: companyObjectId, 
         isActive: true, 
         esMix: { $ne: true } 
       })
@@ -138,9 +151,11 @@ export class ProductsService {
   }
 
   async findMixes(companyId: string): Promise<Product[]> {
+    const companyObjectId = new Types.ObjectId(companyId);
+    
     const products = await this.productModel
       .find({ 
-        companyId, 
+        companyId: companyObjectId, 
         isActive: true, 
         esMix: true 
       })
@@ -153,6 +168,7 @@ export class ProductsService {
       const profitabilityData = this.calculateProfitability(product);
       return {
         ...product.toObject(),
+        id: (product._id as Types.ObjectId).toString(), // Mapear _id a id para GraphQL
         calculatedCost,
         availableStock,
         ...profitabilityData
@@ -161,7 +177,9 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto, companyId: string): Promise<Product> {
-    const product = await this.productModel.findOne({ _id: id, companyId, isActive: true });
+    const companyObjectId = new Types.ObjectId(companyId);
+    
+    const product = await this.productModel.findOne({ _id: id, companyId: companyObjectId, isActive: true });
     
     if (!product) {
       throw new NotFoundException('Producto no encontrado');
@@ -194,7 +212,9 @@ export class ProductsService {
   }
 
   async updateStock(id: string, newStock: number, companyId: string): Promise<Product> {
-    const product = await this.productModel.findOne({ _id: id, companyId, isActive: true });
+    const companyObjectId = new Types.ObjectId(companyId);
+    
+    const product = await this.productModel.findOne({ _id: id, companyId: companyObjectId, isActive: true });
     
     if (!product) {
       throw new NotFoundException('Producto no encontrado');
@@ -209,7 +229,9 @@ export class ProductsService {
   }
 
   async delete(id: string, companyId: string): Promise<void> {
-    const product = await this.productModel.findOne({ _id: id, companyId });
+    const companyObjectId = new Types.ObjectId(companyId);
+    
+    const product = await this.productModel.findOne({ _id: id, companyId: companyObjectId });
     
     if (!product) {
       throw new NotFoundException('Producto no encontrado');
@@ -217,7 +239,7 @@ export class ProductsService {
 
     // Verificar si está siendo usado en algún mix
     const usedInMix = await this.productModel.findOne({
-      companyId,
+      companyId: companyObjectId,
       isActive: true,
       esMix: true,
       'receta.productId': id
